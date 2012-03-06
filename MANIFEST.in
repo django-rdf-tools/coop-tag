@@ -1,0 +1,3 @@
+recursive-include coop/templates *.html
+recursive-include coop_tag/locale *.mo *.po
+
