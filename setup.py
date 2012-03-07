@@ -24,7 +24,7 @@ setup(
     author_email='contact@quinode.fr',
     license='BSD',
     zip_safe=False,
-    install_requires = ['django-taggit',],
+    install_requires = ['django-taggit==0.9.3',],
     long_description = open('README.rst').read(),
     url = 'https://github.com/quinode/coop-tag/',
     download_url = 'https://github.com/quinode/coop-tag/tarball/master',
