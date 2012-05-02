@@ -141,7 +141,7 @@ li.as-message {
 }
 
 li.as-result-item.active {
-	background-color: #bbd4f1;
+	background-color: #deeaf7;
 	background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#bbd4f1), to(#a3c2e5));
     border-color: #6DA0E0;
 	color: #000;
@@ -149,14 +149,14 @@ li.as-result-item.active {
 
 li.as-result-item em { 
 	font-style: normal; 
-	background: #749db5;  
+	background: #fcf3b5;  
 	padding: 0 2px;
-	color: #fff;
+	color: black;
 }
 
 li.as-result-item.active em { 
-	background: #253f7a;  
-	color: #fff;
+	background: #efc565;  
+	color: black;
 }
 
 

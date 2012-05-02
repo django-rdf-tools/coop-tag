@@ -6,8 +6,9 @@ from django.utils.html import conditional_escape
 
 class GroupedCheckboxSelectMultiple(CheckboxSelectMultiple):
     class Media:
-        js = ('js/autocolumn.js',)
-    
+        js = ('js/autocolumn.js', 'js/groupbox.js')
+        #js = ('js/jquery.easyListSplitter.js',)
+
     def render(self, name, value, attrs=None, choices=()):
         if value is None: 
             value = []
@@ -17,7 +18,7 @@ class GroupedCheckboxSelectMultiple(CheckboxSelectMultiple):
         str_values = set([force_unicode(v) for v in value])
         output = [u'<div class="groupbox">']
         for z, g in enumerate(self.choices):
-            output.append(u'<div class="groupbox-header">%s</div>' % g[0])
+            output.append(u'<div class="groupbox-header">%s <span class="group-count">(<span class="value"></span>)</span></div>' % g[0])
             output.append(u'<ul class="groupbox-list">')
             for i, (option_value, option_label) in enumerate(g[1]):
                 # If an ID attribute was given, add a numeric index as a suffix,
@@ -43,4 +44,3 @@ class GroupedCheckboxSelectMultiple(CheckboxSelectMultiple):
             id_ += '_0'
         return id_
     id_for_label = classmethod(id_for_label)
-    
