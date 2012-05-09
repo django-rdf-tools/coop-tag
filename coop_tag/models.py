@@ -35,6 +35,8 @@ class Ctag(TagBase):
     created = exfields.CreationDateTimeField(_(u'created'))
     modified = exfields.ModificationDateTimeField(_(u'modified'))
     category = models.ForeignKey(TagCategory, null=True, blank=True, verbose_name=_(u'category'))
+    # selectable = models.BooleanField(default=True)
+    concept_uri = models.CharField(_(u'Concept URI'), blank=True, max_length=250, editable=False)
 
     def get_absolute_url(self):
         return reverse('tag_detail', args=[self.slug])
