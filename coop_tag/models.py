@@ -52,11 +52,11 @@ class Ctag(TagBase, URIModel):
     # selectable = models.BooleanField(default=True)
     concept_uri = models.CharField(_(u'Concept URI'), blank=True, max_length=250, editable=False)
 
-    def __init__(self, *args, **kwargs):
-        super(Ctag, self).__init__(*args, **kwargs)
-        slug = models.CharField(verbose_name=_('Slug'), unique=True, max_length=100)
-        slug.contribute_to_class(self, 'slug')
-
+    # TODO http://redmine.django.coop/issues/117
+    # def __init__(self, *args, **kwargs):
+    #     super(Ctag, self).__init__(*args, **kwargs)
+    #     slug = models.CharField(verbose_name=_('Slug'), unique=True, max_length=100)
+    #     slug.contribute_to_class(self, 'slug')
 
     def get_absolute_url(self):
         return reverse('tag_detail', args=[self.slug])
@@ -65,7 +65,6 @@ class Ctag(TagBase, URIModel):
         verbose_name = _(u'tag')
         verbose_name_plural = _(u'tags') 
 
-    # TODO http://redmine.django.coop/issues/117
     # def slugify(self, tag, i=None):
     #     slug = unicode_slugify(tag)
     #     if i is not None:
