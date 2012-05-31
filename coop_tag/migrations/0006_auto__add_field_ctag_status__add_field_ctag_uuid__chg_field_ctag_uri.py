@@ -8,8 +8,8 @@ class Migration(SchemaMigration):
 
     def forwards(self, orm):
         
-        # Adding field 'Ctag.status'
-        db.add_column('coop_tag_ctag', 'status', self.gf('django.db.models.fields.PositiveSmallIntegerField')(default=1), keep_default=False)
+        # Adding field 'Ctag.uri_mode'
+        db.add_column('coop_tag_ctag', 'uri_mode', self.gf('django.db.models.fields.PositiveSmallIntegerField')(default=1), keep_default=False)
 
         # Adding field 'Ctag.uuid'
         db.add_column('coop_tag_ctag', 'uuid', self.gf('django.db.models.fields.CharField')(max_length=50, unique=True, null=True), keep_default=False)
@@ -21,7 +21,7 @@ class Migration(SchemaMigration):
     def backwards(self, orm):
         
         # Deleting field 'Ctag.status'
-        db.delete_column('coop_tag_ctag', 'status')
+        db.delete_column('coop_tag_ctag', 'uri_mode')
 
         # Deleting field 'Ctag.uuid'
         db.delete_column('coop_tag_ctag', 'uuid')
@@ -78,7 +78,7 @@ class Migration(SchemaMigration):
             'modified': ('django.db.models.fields.DateTimeField', [], {'default': 'datetime.datetime(2012, 5, 30, 15, 49, 44, 400343)', 'blank': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'max_length': '100'}),
             'slug': ('django.db.models.fields.SlugField', [], {'unique': 'True', 'max_length': '100', 'db_index': 'True'}),
-            'status': ('django.db.models.fields.PositiveSmallIntegerField', [], {'default': '1'}),
+            'uri_mode': ('django.db.models.fields.PositiveSmallIntegerField', [], {'default': '1'}),
             'uri': ('django.db.models.fields.CharField', [], {'max_length': '250', 'null': 'True', 'blank': 'True'}),
             'user': ('django.db.models.fields.related.ForeignKey', [], {'to': "orm['auth.User']", 'null': 'True', 'blank': 'True'}),
             'uuid': ('django.db.models.fields.CharField', [], {'max_length': '50', 'unique': 'True', 'null': 'True'})
