@@ -58,6 +58,9 @@ class Ctag(TagBase, URIModel):
     #     slug = models.CharField(verbose_name=_('Slug'), unique=True, max_length=100)
     #     slug.contribute_to_class(self, 'slug')
 
+    # Ctag objects have a common uri domain
+    domain_name = 'data.economie-solidaire.fr'
+
     def get_absolute_url(self):
         return reverse('tag_detail', args=[self.slug])
 
