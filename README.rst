@@ -11,5 +11,5 @@ git+https://github.com/quinode/django-taggit-templatetags#egg=taggit_templatetag
 
 License
 =======
-coop-tag uses the same license as Django (BSD).
-coop-tag development was funded by `CREDIS <http://credis.org/>`_, FSE (European Social Fund) and Conseil Regional d'Auvergne.
+django-coop uses the same license as Django (BSD).
+django-coop development is currently funded by `CREDIS <http://credis.org/>`_, FSE (European Social Fund) and `Conseil Régional Auvergne <http://www.auvergne.fr/>`_.
