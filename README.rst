@@ -1,6 +1,6 @@
 coop-tag
 ===============================================
-Add-on for django-coop for managing tags with django-taggit, adding URI and language fields for proper export following the CommonTag RDF vocabulary.
+Add-on for `django-coop <http://github.com/quinode/django-coop>`_ for managing tags with `django-taggit <http://github.com/quinode/django-taggit>`_, aligned with the `CommonTag RDF vocabulary <http://commontag.org>`_ specification.
 
 Installation requires several custom modules::
 hg+https://bitbucket.org/quinode/django-taggit-autosuggest#egg=taggit_autosuggest
