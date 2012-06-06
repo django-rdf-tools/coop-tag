@@ -46,8 +46,6 @@ class Ctag(TagBase, URIModel):
     language = models.CharField(_(u'language'), max_length=10, default='fr')
     user = models.ForeignKey(User, blank=True, null=True, verbose_name=_(u'django user'), editable=False)
     person_uri = models.CharField(_(u'author URI'), blank=True, max_length=250, editable=False)
-    created = exfields.CreationDateTimeField(_(u'created'))
-    modified = exfields.ModificationDateTimeField(_(u'modified'))
     category = models.ForeignKey(TagCategory, null=True, blank=True, verbose_name=_(u'category'))
     # selectable = models.BooleanField(default=True)
     concept_uri = models.CharField(_(u'Concept URI'), blank=True, max_length=250, editable=False)
