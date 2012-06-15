@@ -59,6 +59,9 @@ class Ctag(TagBase, URIModel):
     # Ctag objects have a common uri domain
     domain_name = 'data.economie-solidaire.fr'
 
+    def label(self):
+        return self.name
+
     def get_absolute_url(self):
         return reverse('tag_detail', args=[self.slug])
 
