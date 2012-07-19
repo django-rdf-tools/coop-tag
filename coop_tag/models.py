@@ -35,13 +35,13 @@ class TagCategory(models.Model):
         verbose_name = _(u'tag category')
         verbose_name_plural = _(u'tag categories')
         ordering = ['position']
-        
-    
+
+
 class Ctag(TagBase, URIModel):
     '''
     Defines a Common Tag resource
     '''
-    # FIELDS name and slug are defined in TagBase   
+    # FIELDS name and slug are defined in TagBase
 
     language = models.CharField(_(u'language'), max_length=10, default='fr')
     user = models.ForeignKey(User, blank=True, null=True, verbose_name=_(u'django user'), editable=False)
@@ -63,7 +63,7 @@ class Ctag(TagBase, URIModel):
     def uri_id(self):
         return self.slug
 
-
+    @property
     def label(self):
         return self.name
 
@@ -72,18 +72,18 @@ class Ctag(TagBase, URIModel):
 
     class Meta:
         verbose_name = _(u'tag')
-        verbose_name_plural = _(u'tags') 
+        verbose_name_plural = _(u'tags')
 
     # def slugify(self, tag, i=None):
     #     slug = unicode_slugify(tag)
     #     if i is not None:
     #         slug += "_%d" % i
     #     return slug
-           
+
 
 class CtaggedItem(GenericTaggedItemBase):
     tag = models.ForeignKey(Ctag, related_name="ctagged_items")
-    
+
     class Meta:
         verbose_name = _(u'tagged item')
         verbose_name_plural = _(u'tagged items')
