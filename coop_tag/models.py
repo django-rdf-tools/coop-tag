@@ -63,7 +63,6 @@ class Ctag(TagBase, URIModel):
     def uri_id(self):
         return self.slug
 
-    @property
     def label(self):
         return self.name
 
