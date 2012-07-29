@@ -1,89 +1,211 @@
 # -*- coding:utf-8 -*-
 from django.db import models
-from taggit.models import TagBase, GenericTaggedItemBase
 from django.utils.translation import ugettext_lazy as _
-from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
-from django_extensions.db import fields as exfields
-from positions.fields import PositionField
-from coop.models import URIModel
+from django.utils.translation import ugettext
+#from django_extensions.db import fields as exfields
+#from positions.fields import PositionField
+
+import re
+import django
+from django.utils.safestring import mark_safe
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.generic import GenericForeignKey
+from django.db import IntegrityError, transaction
+from django.conf import settings
+
+# from autosuggest :
+
+try:
+    from south.modelsinspector import add_ignored_fields
+    add_ignored_fields(["^coop_tag\.managers"])
+except ImportError:
+    pass  # without south this can fail silently
 
 
-# TODO http://redmine.django.coop/issues/117
-# from django.template.defaultfilters import slugify as default_slugify
-# import re
-# from django.utils.safestring import mark_safe
-# def unicode_slugify(value):
-#     """
-#     Normalizes string, converts to lowercase, removes non-alpha characters,
-#     and converts spaces to hyphens.
-#     """
-#     value = unicode(re.sub('[^\w\s-]', '', value).strip().lower())
-#     return mark_safe(re.sub('[-\s]+', '-', value))
+def unicode_slugify(value):
+    """
+    Normalizes string, converts to lowercase, removes non-alpha characters,
+    and converts spaces to hyphens.
+    """
+    value = unicode(re.sub('[^\w\s-]', '', value).strip().lower())
+    return mark_safe(re.sub('[-\s]+', '-', value))
 
 
-class TagCategory(models.Model):
-    label = models.CharField(_(u'label'), max_length=100)
-    uri = models.CharField(_(u'tag URI'), blank=True, max_length=250, editable=False)
-    slug = exfields.AutoSlugField(populate_from='label', blank=True)
-    position = PositionField()
+# rather add an MPTT tree
+
+# class BaseTagCategory(models.Model):
+#     label = models.CharField(_(u'label'), max_length=100)
+#     #uri = models.CharField(_(u'tag URI'), blank=True, max_length=250, editable=False)
+#     slug = exfields.AutoSlugField(populate_from='label', blank=True)
+#     position = PositionField()
+
+#     def __unicode__(self):
+#         return self.label
+
+#     class Meta:
+#         verbose_name = _(u'tag category')
+#         verbose_name_plural = _(u'tag categories')
+#         ordering = ['position']
+#         abstract = True
+
+
+class TagBase(models.Model):
+    name = models.CharField(verbose_name=_('Name'), max_length=100)
+    slug = models.SlugField(verbose_name=_('Slug'), unique=True, max_length=100)
 
     def __unicode__(self):
-        return self.label
-
-    class Meta:
-        verbose_name = _(u'tag category')
-        verbose_name_plural = _(u'tag categories')
-        ordering = ['position']
-
-
-class Ctag(TagBase, URIModel):
-    '''
-    Defines a Common Tag resource
-    '''
-    # FIELDS name and slug are defined in TagBase
-
-    language = models.CharField(_(u'language'), max_length=10, default='fr')
-    user = models.ForeignKey(User, blank=True, null=True, verbose_name=_(u'django user'), editable=False)
-    person_uri = models.CharField(_(u'author URI'), blank=True, max_length=250, editable=False)
-    category = models.ForeignKey(TagCategory, null=True, blank=True, verbose_name=_(u'category'))
-    # selectable = models.BooleanField(default=True)
-    concept_uri = models.CharField(_(u'Concept URI'), blank=True, max_length=250, editable=False)
-
-    # TODO http://redmine.django.coop/issues/117
-    # def __init__(self, *args, **kwargs):
-    #     super(Ctag, self).__init__(*args, **kwargs)
-    #     slug = models.CharField(verbose_name=_('Slug'), unique=True, max_length=100)
-    #     slug.contribute_to_class(self, 'slug')
-
-    # Ctag objects have a common uri domain
-    domain_name = 'data.economie-solidaire.fr'
-
-    @property
-    def uri_id(self):
-        return self.slug
-
-    def label(self):
         return self.name
 
-    def get_absolute_url(self):
-        return reverse('tag_detail', args=[self.slug])
+    class Meta:
+        abstract = True
+
+    def save(self, *args, **kwargs):
+        if not self.pk and not self.slug:
+            self.slug = self.slugify(self.name)
+            if django.VERSION >= (1, 2):
+                from django.db import router
+                using = kwargs.get("using") or router.db_for_write(
+                    type(self), instance=self)
+                # Make sure we write to the same db for all attempted writes,
+                # with a multi-master setup, theoretically we could try to
+                # write and rollback on different DBs
+                kwargs["using"] = using
+                trans_kwargs = {"using": using}
+            else:
+                trans_kwargs = {}
+            i = 0
+            while True:
+                i += 1
+                try:
+                    sid = transaction.savepoint(**trans_kwargs)
+                    res = super(TagBase, self).save(*args, **kwargs)
+                    transaction.savepoint_commit(sid, **trans_kwargs)
+                    return res
+                except IntegrityError:
+                    transaction.savepoint_rollback(sid, **trans_kwargs)
+                    self.slug = self.slugify(self.name, i)
+        else:
+            return super(TagBase, self).save(*args, **kwargs)
+
+    def slugify(self, tag, i=None):
+        slug = unicode_slugify(tag)  # YES, we allow accents in slugs ! i18n powa !!!
+        if i is not None:
+            slug += "_%d" % i
+        return slug
+
+
+if not hasattr(settings, 'TAG_MODEL'):
+    # No alternative tag model has been defined, we create one from the abstract
+    class Tag(TagBase):
+        class Meta:
+            verbose_name = _("Tag")
+            verbose_name_plural = _("Tags")
+
+
+class ItemBase(models.Model):
+    def __unicode__(self):
+        return ugettext("%(object)s tagged with %(tag)s") % {
+            "object": self.content_object,
+            "tag": self.tag
+        }
 
     class Meta:
-        verbose_name = _(u'tag')
-        verbose_name_plural = _(u'tags')
+        abstract = True
 
-    # def slugify(self, tag, i=None):
-    #     slug = unicode_slugify(tag)
-    #     if i is not None:
-    #         slug += "_%d" % i
-    #     return slug
+    @classmethod
+    def tag_model(cls):
+        return cls._meta.get_field_by_name("tag")[0].rel.to
+
+    @classmethod
+    def tag_relname(cls):
+        return cls._meta.get_field_by_name('tag')[0].rel.related_name
+
+    @classmethod
+    def lookup_kwargs(cls, instance):
+        return {
+            'content_object': instance
+        }
+
+    @classmethod
+    def bulk_lookup_kwargs(cls, instances):
+        return {
+            "content_object__in": instances,
+        }
+
+# only now we can import this
+from coop_tag.settings import TAG_MODEL
 
 
-class CtaggedItem(GenericTaggedItemBase):
-    tag = models.ForeignKey(Ctag, related_name="ctagged_items")
+class TaggedItemBase(ItemBase):
+    tag = models.ForeignKey(TAG_MODEL, related_name="%(app_label)s_%(class)s_items")
 
     class Meta:
-        verbose_name = _(u'tagged item')
-        verbose_name_plural = _(u'tagged items')
+        abstract = True
+
+    @classmethod
+    def tags_for(cls, model, instance=None):
+        if instance is not None:
+            return cls.tag_model().objects.filter(**{
+                '%s__content_object' % cls.tag_relname(): instance
+            })
+        return cls.tag_model().objects.filter(**{
+            '%s__content_object__isnull' % cls.tag_relname(): False
+        }).distinct()
+
+
+class GenericTaggedItemBase(ItemBase):
+    content_type = models.ForeignKey(
+        ContentType,
+        verbose_name=_('Content type'),
+        related_name="%(app_label)s_%(class)s_tagged_items"
+    )
+    content_object = GenericForeignKey()
+
+    class Meta:
+        abstract = True
+
+    @classmethod
+    def lookup_kwargs(cls, instance):
+        return {
+            'object_id': instance.pk,
+            'content_type': ContentType.objects.get_for_model(instance)
+        }
+
+    @classmethod
+    def bulk_lookup_kwargs(cls, instances):
+        # TODO: instances[0], can we assume there are instances.
+        return {
+            "object_id__in": [instance.pk for instance in instances],
+            "content_type": ContentType.objects.get_for_model(instances[0]),
+        }
+
+    @classmethod
+    def tags_for(cls, model, instance=None):
+        ct = ContentType.objects.get_for_model(model)
+        kwargs = {
+            "%s__content_type" % cls.tag_relname(): ct
+        }
+        if instance is not None:
+            kwargs["%s__object_id" % cls.tag_relname()] = instance.pk
+        return cls.tag_model().objects.filter(**kwargs).distinct()
+
+
+if not hasattr(settings, 'TAGGED_ITEM_MODEL'):
+    class TaggedItem(GenericTaggedItemBase, TaggedItemBase):
+        class Meta:
+            verbose_name = _("Tagged Item")
+            verbose_name_plural = _("Tagged Items")
+
+
+from coop_tag.settings import TAGGED_ITEM_MODEL
+
+
+# should be obsolete now, as we tie the Fkey to TAG_MODEL
+
+# class CtaggedItem(GenericTaggedItemBase):
+#     tag = models.ForeignKey(Ctag, related_name="ctagged_items")
+
+#     class Meta:
+#         verbose_name = _(u'tagged item')
+#         verbose_name_plural = _(u'tagged items')
 

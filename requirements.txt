@@ -1,3 +1,1 @@
-hg+https://bitbucket.org/quinode/django-taggit-autosuggest#egg=taggit_autosuggest
-git+git://github.com/jonasgeiregat/django-templatetag-sugar.git#egg=templatetag_sugar
-git+https://github.com/quinode/django-taggit-templatetags#egg=taggit_templatetags
+git+git://github.com/jonasgeiregat/django-templatetag-sugar.git
