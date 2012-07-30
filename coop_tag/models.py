@@ -12,6 +12,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.generic import GenericForeignKey
 from django.db import IntegrityError, transaction
 from django.conf import settings
+import coop_tag
 
 # from autosuggest :
 
@@ -58,6 +59,8 @@ class TagBase(models.Model):
 
     class Meta:
         abstract = True
+        verbose_name = _("Tag")
+        verbose_name_plural = _("Tags")
 
     def save(self, *args, **kwargs):
         if not self.pk and not self.slug:
@@ -97,9 +100,7 @@ class TagBase(models.Model):
 if not hasattr(settings, 'TAG_MODEL'):
     # No alternative tag model has been defined, we create one from the abstract
     class Tag(TagBase):
-        class Meta:
-            verbose_name = _("Tag")
-            verbose_name_plural = _("Tags")
+        pass
 
 
 class ItemBase(models.Model):
@@ -132,6 +133,7 @@ class ItemBase(models.Model):
             "content_object__in": instances,
         }
 
+
 # only now we can import this
 from coop_tag.settings import TAG_MODEL
 
@@ -141,6 +143,8 @@ class TaggedItemBase(ItemBase):
 
     class Meta:
         abstract = True
+        verbose_name = _("Tagged Item")
+        verbose_name_plural = _("Tagged Items")
 
     @classmethod
     def tags_for(cls, model, instance=None):
@@ -192,20 +196,7 @@ class GenericTaggedItemBase(ItemBase):
 
 if not hasattr(settings, 'TAGGED_ITEM_MODEL'):
     class TaggedItem(GenericTaggedItemBase, TaggedItemBase):
-        class Meta:
-            verbose_name = _("Tagged Item")
-            verbose_name_plural = _("Tagged Items")
+        pass
+    setattr(coop_tag.settings, 'TAGGED_ITEM_MODEL', TaggedItem)
 
-
-from coop_tag.settings import TAGGED_ITEM_MODEL
-
-
-# should be obsolete now, as we tie the Fkey to TAG_MODEL
-
-# class CtaggedItem(GenericTaggedItemBase):
-#     tag = models.ForeignKey(Ctag, related_name="ctagged_items")
-
-#     class Meta:
-#         verbose_name = _(u'tagged item')
-#         verbose_name_plural = _(u'tagged items')
 

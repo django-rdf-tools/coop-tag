@@ -9,13 +9,11 @@ TAGCLOUD_MAX = getattr(settings, 'TAGCLOUD_MAX', 6.0)
 
 # default models for tags and tagged items (override this in your settings)
 
-TAGGED_ITEM_MODEL_NAME = getattr(settings, 'TAGGED_ITEM_MODEL', ('coop_tag', 'TaggedItem'))
-TAGGED_ITEM_MODEL = get_model(*TAGGED_ITEM_MODEL_NAME)
-
-
 TAG_MODEL_NAME = getattr(settings, 'TAG_MODEL', ('coop_tag', 'Tag'))
 TAG_MODEL = get_model(*TAG_MODEL_NAME)
 
+TAGGED_ITEM_MODEL_NAME = getattr(settings, 'TAGGED_ITEM_MODEL', ('coop_tag', 'TaggedItem'))
+TAGGED_ITEM_MODEL = get_model(*TAGGED_ITEM_MODEL_NAME)
 
 
 MAX_SUGGESTIONS = getattr(settings, 'TAGGER_MAX_SUGGESTIONS', 20)

@@ -6,8 +6,6 @@ from coop_tag.settings import TAGGED_ITEM_MODEL, TAG_MODEL
 # COOP
 # admin.site.register(TagCategory)
 
-print TAGGED_ITEM_MODEL, TAG_MODEL
-
 
 class TaggedItemInline(admin.StackedInline):
     model = TAGGED_ITEM_MODEL
