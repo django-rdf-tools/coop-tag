@@ -1,25 +1,23 @@
 from django import template
 from django.db.models import Count
-from django.core.exceptions import FieldError
 from django.db.models.loading import get_model
 
 from templatetag_sugar.register import tag
 from templatetag_sugar.parser import Variable, Optional, Model, Required
 
-from coop_tag import settings
-
-T_MAX = settings.TAGCLOUD_MAX
-T_MIN = settings.TAGCLOUD_MIN
 
 register = template.Library()
+from coop_tag.settings import get_class, TAGCLOUD_MAX, TAGCLOUD_MIN
+Tag = get_class('tag')
+TaggedItem = get_class('taggeditem')
 
 
 def get_queryset(forvar=None):
     count_field = None
     if forvar is None:
         # get all tags
-        # tagged_things = settings.TAGGED_ITEM_MODEL.objects.all().distinct
-        queryset = settings.TAG_MODEL.objects.all()
+        # tagged_things = get_class('taggeditem').objects.all().distinct
+        queryset = Tag.objects.all()
     else:
         # extract app label and model name
         beginning, applabel, model = None, None, None
@@ -35,9 +33,9 @@ def get_queryset(forvar=None):
         # filter tagged items
         if model is None:
             # Get tags for a whole app
-            queryset = settings.TAGGED_ITEM_MODEL.objects.filter(content_type__app_label=applabel)
+            queryset = TaggedItem.objects.filter(content_type__app_label=applabel)
             tag_ids = queryset.values_list('tag_id', flat=True)
-            queryset = settings.TAG_MODEL.objects.filter(id__in=tag_ids)
+            queryset = Tag.objects.filter(id__in=tag_ids)
         else:
             # Get tags for a model
             model = model.lower()
@@ -54,7 +52,7 @@ def get_queryset(forvar=None):
 
     if count_field is None:
         # if
-        relname = settings.TAGGED_ITEM_MODEL._meta.get_field_by_name('tag')[0].rel.related_name
+        relname = TaggedItem._meta.get_field_by_name('tag')[0].rel.related_name
         return queryset.annotate(num_times=Count(relname))
     else:
         return queryset.annotate(num_times=Count(count_field))
@@ -95,7 +93,7 @@ def get_tagcloud(context, asvar=None, forvar=None, count=None):
     if(len(num_times) == 0):
         context[asvar] = queryset
         return ''
-    weight_fun = get_weight_fun(T_MIN, T_MAX, min(num_times), max(num_times))
+    weight_fun = get_weight_fun(TAGCLOUD_MIN, TAGCLOUD_MAX, min(num_times), max(num_times))
     if count:
         queryset = queryset.order_by('name')[:int(count) - 1]
     else:

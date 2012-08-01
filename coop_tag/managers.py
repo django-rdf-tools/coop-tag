@@ -11,7 +11,6 @@ from coop_tag.models import TaggedItem, GenericTaggedItemBase
 from coop_tag.utils import require_instance_manager
 from coop_tag.widgets import TagAutoSuggest
 
-
 try:
     all
 except NameError:
@@ -132,7 +131,7 @@ class TaggableManager(RelatedField):
     def extra_filters(self, pieces, pos, negate):
         if negate or not self.use_gfk:
             return []
-        prefix = "__".join(["tagged_items"] + pieces[:pos-2])
+        prefix = "__".join(["tagged_items"] + pieces[:pos - 2])
         cts = map(ContentType.objects.get_for_model, _get_subclasses(self.model))
         if len(cts) == 1:
             return [("%s__content_type" % prefix, cts[0])]

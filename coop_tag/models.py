@@ -1,20 +1,17 @@
 # -*- coding:utf-8 -*-
-from django.db import models
+
+from django.db import models, IntegrityError, transaction
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ugettext
-#from django_extensions.db import fields as exfields
-#from positions.fields import PositionField
-
-import re
-import django
+from mptt.models import MPTTModel, TreeForeignKey
 from django.utils.safestring import mark_safe
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.generic import GenericForeignKey
-from django.db import IntegrityError, transaction
+from coop_tag.settings import get_class, TAG_MODEL_FKEY_NAME
 from django.conf import settings
-import coop_tag
+from django.db import router
+import re
 
-# from autosuggest :
 
 try:
     from south.modelsinspector import add_ignored_fields
@@ -23,59 +20,33 @@ except ImportError:
     pass  # without south this can fail silently
 
 
-def unicode_slugify(value):
-    """
-    Normalizes string, converts to lowercase, removes non-alpha characters,
-    and converts spaces to hyphens.
-    """
-    value = unicode(re.sub('[^\w\s-]', '', value).strip().lower())
-    return mark_safe(re.sub('[-\s]+', '-', value))
-
-
-# rather add an MPTT tree
-
-# class BaseTagCategory(models.Model):
-#     label = models.CharField(_(u'label'), max_length=100)
-#     #uri = models.CharField(_(u'tag URI'), blank=True, max_length=250, editable=False)
-#     slug = exfields.AutoSlugField(populate_from='label', blank=True)
-#     position = PositionField()
-
-#     def __unicode__(self):
-#         return self.label
-
-#     class Meta:
-#         verbose_name = _(u'tag category')
-#         verbose_name_plural = _(u'tag categories')
-#         ordering = ['position']
-#         abstract = True
-
-
-class TagBase(models.Model):
+class TagBase(MPTTModel):
     name = models.CharField(verbose_name=_('Name'), max_length=100)
     slug = models.SlugField(verbose_name=_('Slug'), unique=True, max_length=100)
+    parent = TreeForeignKey('self', null=True, blank=True, related_name='children')
 
     def __unicode__(self):
         return self.name
+
+    class MPTTMeta:
+        order_insertion_by = ['name']
 
     class Meta:
         abstract = True
         verbose_name = _("Tag")
         verbose_name_plural = _("Tags")
+        ordering = ['tree_id', 'lft']  # for FeinCMS TreeEditor
 
     def save(self, *args, **kwargs):
         if not self.pk and not self.slug:
-            self.slug = self.slugify(self.name)
-            if django.VERSION >= (1, 2):
-                from django.db import router
-                using = kwargs.get("using") or router.db_for_write(
-                    type(self), instance=self)
-                # Make sure we write to the same db for all attempted writes,
-                # with a multi-master setup, theoretically we could try to
-                # write and rollback on different DBs
-                kwargs["using"] = using
-                trans_kwargs = {"using": using}
-            else:
-                trans_kwargs = {}
+            self.slug = self.uslugify(self.name)
+            using = kwargs.get("using") or router.db_for_write(
+                type(self), instance=self)
+            # Make sure we write to the same db for all attempted writes,
+            # with a multi-master setup, theoretically we could try to
+            # write and rollback on different DBs
+            kwargs["using"] = using
+            trans_kwargs = {"using": using}
             i = 0
             while True:
                 i += 1
@@ -86,19 +57,20 @@ class TagBase(models.Model):
                     return res
                 except IntegrityError:
                     transaction.savepoint_rollback(sid, **trans_kwargs)
-                    self.slug = self.slugify(self.name, i)
+                    self.slug = self.uslugify(self.name, i)
         else:
-            return super(TagBase, self).save(*args, **kwargs)
+            super(TagBase, self).save(*args, **kwargs)
 
-    def slugify(self, tag, i=None):
-        slug = unicode_slugify(tag)  # YES, we allow accents in slugs ! i18n powa !!!
+    def uslugify(self, tag_name, i=None):
+        #import pdb; pdb.set_trace()
+        tag_name = unicode(re.sub('[^\w\s-]', '', tag_name).strip().lower())
+        slug = mark_safe(re.sub('[-\s]+', '-', tag_name))
         if i is not None:
             slug += "_%d" % i
         return slug
 
 
 if not hasattr(settings, 'TAG_MODEL'):
-    # No alternative tag model has been defined, we create one from the abstract
     class Tag(TagBase):
         pass
 
@@ -134,17 +106,13 @@ class ItemBase(models.Model):
         }
 
 
-# only now we can import this
-from coop_tag.settings import TAG_MODEL
-
-
 class TaggedItemBase(ItemBase):
-    tag = models.ForeignKey(TAG_MODEL, related_name="%(app_label)s_%(class)s_items")
+    # tag = models.ForeignKey(TAG_MODEL_FKEY_NAME, related_name="%(app_label)s_%(class)s_items")
 
     class Meta:
         abstract = True
-        verbose_name = _("Tagged Item")
-        verbose_name_plural = _("Tagged Items")
+        verbose_name = _("tagged item")
+        verbose_name_plural = _("tagged items")
 
     @classmethod
     def tags_for(cls, model, instance=None):
@@ -158,6 +126,7 @@ class TaggedItemBase(ItemBase):
 
 
 class GenericTaggedItemBase(ItemBase):
+    object_id = models.IntegerField(verbose_name=_('Object id'), db_index=True)
     content_type = models.ForeignKey(
         ContentType,
         verbose_name=_('Content type'),
@@ -194,9 +163,7 @@ class GenericTaggedItemBase(ItemBase):
         return cls.tag_model().objects.filter(**kwargs).distinct()
 
 
-if not hasattr(settings, 'TAGGED_ITEM_MODEL'):
+if not hasattr(settings, 'TAGGEDITEM_MODEL'):
     class TaggedItem(GenericTaggedItemBase, TaggedItemBase):
-        pass
-    setattr(coop_tag.settings, 'TAGGED_ITEM_MODEL', TaggedItem)
-
+        tag = models.ForeignKey(TAG_MODEL_FKEY_NAME, related_name="%(app_label)s_%(class)s_items")
 

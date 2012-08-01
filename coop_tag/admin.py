@@ -1,24 +1,17 @@
 # -*- coding:utf-8 -*-
 
 from django.contrib import admin
-from coop_tag.settings import TAGGED_ITEM_MODEL, TAG_MODEL
-
-# COOP
-# admin.site.register(TagCategory)
+from coop_tag.settings import get_class
+from feincms.admin import tree_editor
 
 
 class TaggedItemInline(admin.StackedInline):
-    model = TAGGED_ITEM_MODEL
+    model = get_class('taggeditem')
 
 
-class TagAdmin(admin.ModelAdmin):
-    list_display = ('name', 'slug')  # 'category')
-    #list_editable = ('category',)
-    search_fields = ['name', 'slug']
-    #list_filter = ('category',)
+class TagAdmin(tree_editor.TreeEditor):
     inlines = [
         TaggedItemInline
     ]
 
-admin.site.register(TAG_MODEL, TagAdmin)
-
+admin.site.register(get_class('tag'), TagAdmin)

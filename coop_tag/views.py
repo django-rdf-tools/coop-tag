@@ -6,10 +6,10 @@ from django.views.generic.list_detail import object_list
 from django.template import RequestContext
 from django.shortcuts import render_to_response
 
-from coop_tag import settings
+from coop_tag.settings import get_class, MAX_SUGGESTIONS
 
-Tag = settings.TAG_MODEL
-TaggedItem = settings.TAGGED_ITEM_MODEL
+Tag = get_class('tag')
+TaggedItem = get_class('taggeditem')
 
 
 def tagged_object_list(request, slug, queryset, **kwargs):
@@ -37,7 +37,6 @@ def tag_detail(request, slug):
     return render_to_response('tag_detail.html', context, RequestContext(request))
 
 
-from coop_tag import settings
 from django.http import HttpResponse
 from django.utils import simplejson as json
 
@@ -48,14 +47,14 @@ def list_tags(request):
     all start like your query string `q` (not case sensitive).
     """
     query = request.GET.get('q', '')
-    limit = request.GET.get('limit', settings.MAX_SUGGESTIONS)
+    limit = request.GET.get('limit', MAX_SUGGESTIONS)
     try:
-        request.GET.get('limit', settings.MAX_SUGGESTIONS)
-        limit = min(int(limit), settings.MAX_SUGGESTIONS)  # max or less
+        request.GET.get('limit', MAX_SUGGESTIONS)
+        limit = min(int(limit), MAX_SUGGESTIONS)  # max or less
     except ValueError:
-        limit = settings.MAX_SUGGESTIONS
+        limit = MAX_SUGGESTIONS
 
-    tag_name_qs = settings.TAG_MODEL.objects.filter(name__istartswith=query).\
+    tag_name_qs = Tag.objects.filter(name__istartswith=query).\
         values_list('name', flat=True)
     data = [{'name': n, 'value': n} for n in tag_name_qs[:limit]]
 
