@@ -7,9 +7,18 @@ from django.utils.text import capfirst
 from django.utils.translation import ugettext_lazy as _
 
 from coop_tag.forms import TagField
-from coop_tag.models import TaggedItem, GenericTaggedItemBase
+from coop_tag.models import GenericTaggedItemBase
 from coop_tag.utils import require_instance_manager
 from coop_tag.widgets import TagAutoSuggest
+from django.conf import settings
+
+# we use the default TaggedItem model if it's not customized
+if not hasattr(settings, 'TAGGEDITEM_MODEL'):
+    from coop_tag.models import TaggedItem
+else:
+    from coop_tag.settings import get_class
+    TaggedItem = get_class('taggeditem')
+
 
 try:
     all
