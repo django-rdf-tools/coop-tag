@@ -21,12 +21,13 @@ class TagTreeAdmin(tree_editor.TreeEditor):
 
     def changelist_view(self, request, extra_context=None, *args, **kwargs):
         if 'actions_column' not in self.list_display:
-            self.list_display.insert(0,'actions_column')
+            self.list_display.insert(0, 'actions_column')
         return super(TagTreeAdmin, self).changelist_view(request, extra_context)
 
 
     # inlines = [
     #     TaggedItemInline
     # ]
+
 
 admin.site.register(get_class('tag'), TagTreeAdmin)
