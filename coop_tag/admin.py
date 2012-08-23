@@ -12,17 +12,17 @@ class TaggedItemInline(admin.StackedInline):
 # We just override the TreeEditor template to add some custom CSS
 # and put the move cursor before the object title
 
-class TagTreeAdmin(tree_editor.TreeEditor):
-    def __init__(self, *args, **kwargs):
-        super(TagTreeAdmin, self).__init__(*args, **kwargs)
-        self.change_list_template = [
-            'admin/feincms/tag_tree_editor.html',
-            ]
+# class TagTreeAdmin(tree_editor.TreeEditor):
+#     def __init__(self, *args, **kwargs):
+#         super(TagTreeAdmin, self).__init__(*args, **kwargs)
+#         self.change_list_template = [
+#             'admin/feincms/tag_tree_editor.html',
+#             ]
 
-    def changelist_view(self, request, extra_context=None, *args, **kwargs):
-        if 'actions_column' not in self.list_display:
-            self.list_display.insert(0, 'actions_column')
-        return super(TagTreeAdmin, self).changelist_view(request, extra_context)
+#     def changelist_view(self, request, extra_context=None, *args, **kwargs):
+#         if 'actions_column' not in self.list_display:
+#             self.list_display.insert(0, 'actions_column')
+#         return super(TagTreeAdmin, self).changelist_view(request, extra_context)
 
 
     # inlines = [
@@ -30,4 +30,4 @@ class TagTreeAdmin(tree_editor.TreeEditor):
     # ]
 
 
-admin.site.register(get_class('tag'), TagTreeAdmin)
+admin.site.register(get_class('tag'))#, TagTreeAdmin)

@@ -3,7 +3,7 @@
 from django.db import models, IntegrityError, transaction
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ugettext
-from mptt.models import MPTTModel, TreeForeignKey
+#from mptt.models import MPTTModel, TreeForeignKey
 from django.utils.safestring import mark_safe
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.generic import GenericForeignKey
@@ -20,22 +20,22 @@ except ImportError:
     pass  # without south this can fail silently
 
 
-class TagBase(MPTTModel):
+class TagBase(models.Model):
     name = models.CharField(verbose_name=_('Name'), max_length=100)
     slug = models.SlugField(verbose_name=_('Slug'), unique=True, max_length=100)
-    parent = TreeForeignKey('self', null=True, blank=True, related_name='children')
+    # parent = TreeForeignKey('self', null=True, blank=True, related_name='children')
 
     def __unicode__(self):
         return self.name
 
-    class MPTTMeta:
-        order_insertion_by = ['name']
+    # class MPTTMeta:
+    #     order_insertion_by = ['name']
 
     class Meta:
         abstract = True
         verbose_name = _("Tag")
         verbose_name_plural = _("Tags")
-        ordering = ['tree_id', 'lft']  # for FeinCMS TreeEditor
+        # ordering = ['tree_id', 'lft']  # for FeinCMS TreeEditor
 
     def save(self, *args, **kwargs):
         if not self.pk and not self.slug:
@@ -107,7 +107,7 @@ class ItemBase(models.Model):
 
 
 class TaggedItemBase(ItemBase):
-    # tag = models.ForeignKey(TAG_MODEL_FKEY_NAME, related_name="%(app_label)s_%(class)s_items")
+    tag = models.ForeignKey(TAG_MODEL_FKEY_NAME, related_name="%(app_label)s_%(class)s_items")
 
     class Meta:
         abstract = True
@@ -130,9 +130,8 @@ class GenericTaggedItemBase(ItemBase):
     content_type = models.ForeignKey(
         ContentType,
         verbose_name=_('Content type'),
-        related_name="%(app_label)s_%(class)s_tagged_items"
+        related_name="%(app_label)s_%(class)s_taggeditem_items"
     )
-    content_object = GenericForeignKey()
 
     class Meta:
         abstract = True
@@ -155,15 +154,20 @@ class GenericTaggedItemBase(ItemBase):
     @classmethod
     def tags_for(cls, model, instance=None):
         ct = ContentType.objects.get_for_model(model)
+        # import pdb
+        # pdb.set_trace()
         kwargs = {
             "%s__content_type" % cls.tag_relname(): ct
         }
         if instance is not None:
             kwargs["%s__object_id" % cls.tag_relname()] = instance.pk
+
         return cls.tag_model().objects.filter(**kwargs).distinct()
 
 
 if not hasattr(settings, 'TAGGEDITEM_MODEL'):
     class TaggedItem(GenericTaggedItemBase, TaggedItemBase):
-        tag = models.ForeignKey(TAG_MODEL_FKEY_NAME, related_name="%(app_label)s_%(class)s_items")
+        pass
+        #content_object = GenericForeignKey('content_type', 'object_id')
+        #tag = models.ForeignKey(TAG_MODEL_FKEY_NAME, related_name="%(app_label)s_%(class)s_items")
 
