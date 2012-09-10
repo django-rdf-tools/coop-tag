@@ -2,7 +2,7 @@
 
 from django.contrib import admin
 from coop_tag.settings import get_class
-from feincms.admin import tree_editor
+#from feincms.admin import tree_editor
 
 
 class TaggedItemInline(admin.StackedInline):
