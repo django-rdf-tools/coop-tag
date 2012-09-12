@@ -169,5 +169,6 @@ class GenericTaggedItemBase(ItemBase):
 
 if not hasattr(settings, 'TAGGEDITEM_MODEL'):
     class TaggedItem(GenericTaggedItemBase, TaggedItemBase):
+        pass
         #tag = models.ForeignKey(TAG_MODEL_FKEY_NAME, related_name="%(app_label)s_%(class)s_items")
 
