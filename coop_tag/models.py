@@ -38,7 +38,7 @@ class TagBase(models.Model):
         # ordering = ['tree_id', 'lft']  # for FeinCMS TreeEditor
 
     def save(self, *args, **kwargs):
-        if not self.pk and not self.slug:
+        if (not self.pk and not self.slug) or not self.slug:
             self.slug = self.uslugify(self.name)
             using = kwargs.get("using") or router.db_for_write(
                 type(self), instance=self)
