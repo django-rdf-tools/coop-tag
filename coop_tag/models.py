@@ -132,6 +132,8 @@ class GenericTaggedItemBase(ItemBase):
         verbose_name=_('Content type'),
         related_name="%(app_label)s_%(class)s_taggeditem_items"
     )
+    content_object = GenericForeignKey('content_type', 'object_id')
+
 
     class Meta:
         abstract = True
@@ -167,7 +169,5 @@ class GenericTaggedItemBase(ItemBase):
 
 if not hasattr(settings, 'TAGGEDITEM_MODEL'):
     class TaggedItem(GenericTaggedItemBase, TaggedItemBase):
-        pass
-        #content_object = GenericForeignKey('content_type', 'object_id')
         #tag = models.ForeignKey(TAG_MODEL_FKEY_NAME, related_name="%(app_label)s_%(class)s_items")
 
