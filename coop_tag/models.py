@@ -7,7 +7,7 @@ from django.utils.translation import ugettext
 from django.utils.safestring import mark_safe
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.generic import GenericForeignKey
-from coop_tag.settings import get_class, TAG_MODEL_FKEY_NAME
+from coop_tag.settings import get_class, TAGGER_FKEY_NAME
 from django.conf import settings
 from django.db import router
 import re
@@ -69,8 +69,24 @@ class TagBase(models.Model):
             slug += "_%d" % i
         return slug
 
+    def tagged_items(self, selection=None):
+        """
+        Returns a dict of objects tagged with this tag, keys of the dict are model names.
+        The 'selection' parameter can be used to pass a restrictive list of models names as strings.
+        """
+        from coop_tag.settings import get_class
+        TaggedItem = get_class('taggeditem')
+        items = {}
+        for item in TaggedItem.objects.filter(tag=self):
+            cls = item.content_object._meta.verbose_name_plural
+            if not selection or cls in selection:
+                if not cls in items:
+                    items[cls] = []
+                items[cls].append(item)
+        return items
 
-if not hasattr(settings, 'TAG_MODEL'):
+
+if not hasattr(settings, 'TAGGER_TAG_MODEL'):
     class Tag(TagBase):
         pass
 
@@ -107,7 +123,7 @@ class ItemBase(models.Model):
 
 
 class TaggedItemBase(ItemBase):
-    tag = models.ForeignKey(TAG_MODEL_FKEY_NAME, related_name="%(app_label)s_%(class)s_items")
+    tag = models.ForeignKey(TAGGER_FKEY_NAME, related_name="%(app_label)s_%(class)s_items")
 
     class Meta:
         abstract = True
@@ -167,8 +183,8 @@ class GenericTaggedItemBase(ItemBase):
         return cls.tag_model().objects.filter(**kwargs).distinct()
 
 
-if not hasattr(settings, 'TAGGEDITEM_MODEL'):
+if not hasattr(settings, 'TAGGER_TAGGEDITEM_MODEL'):
     class TaggedItem(GenericTaggedItemBase, TaggedItemBase):
         pass
-        #tag = models.ForeignKey(TAG_MODEL_FKEY_NAME, related_name="%(app_label)s_%(class)s_items")
+        #tag = models.ForeignKey(TAGGER_FKEY_NAME, related_name="%(app_label)s_%(class)s_items")
 

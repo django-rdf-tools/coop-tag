@@ -13,7 +13,7 @@ from coop_tag.widgets import TagAutoSuggest
 from django.conf import settings
 
 # we use the default TaggedItem model if it's not customized
-if not hasattr(settings, 'TAGGEDITEM_MODEL'):
+if not hasattr(settings, 'TAGGER_TAGGEDITEM_MODEL'):
     from coop_tag.models import TaggedItem
 else:
     from coop_tag.settings import get_class

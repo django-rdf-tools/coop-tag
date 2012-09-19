@@ -17,8 +17,8 @@ def read(fname):
 setup(
     name='coop-tag',
     version = VERSION,
-    description='Repackaging of django-taggit with extensions',
-    packages=[  'coop_tag', 'coop_tag.migrations', 'coop_tag.templatetags'],
+    description='Repackaging django-taggit with add-ons',
+    packages=['coop_tag', 'coop_tag.migrations', 'coop_tag.templatetags'],
     include_package_data=True,
     author='Cooperative Quinode',
     author_email='contact@quinode.fr',

@@ -7,7 +7,7 @@ from templatetag_sugar.parser import Variable, Optional, Model, Required
 
 
 register = template.Library()
-from coop_tag.settings import get_class, TAGCLOUD_MAX, TAGCLOUD_MIN
+from coop_tag.settings import get_class, TAGGER_CLOUD_MAX, TAGGER_CLOUD_MIN
 Tag = get_class('tag')
 TaggedItem = get_class('taggeditem')
 
@@ -93,7 +93,7 @@ def get_tagcloud(context, asvar=None, forvar=None, count=None):
     if(len(num_times) == 0):
         context[asvar] = queryset
         return ''
-    weight_fun = get_weight_fun(TAGCLOUD_MIN, TAGCLOUD_MAX, min(num_times), max(num_times))
+    weight_fun = get_weight_fun(TAGGER_CLOUD_MIN, TAGGER_CLOUD_MAX, min(num_times), max(num_times))
     if count:
         queryset = queryset.order_by('name')[:int(count) - 1]
     else:

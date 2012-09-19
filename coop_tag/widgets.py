@@ -1,5 +1,13 @@
 # -*- coding:utf-8 -*-
 
+
+import copy
+from django import forms
+from coop_tag import settings
+from django.core.urlresolvers import reverse
+from django.utils.translation import ugettext_lazy as _
+from coop_tag.utils import edit_string_for_tags
+
 from django.forms.widgets import CheckboxSelectMultiple, CheckboxInput
 from django.utils.encoding import force_unicode
 from django.utils.safestring import mark_safe
@@ -8,8 +16,8 @@ from django.utils.html import conditional_escape
 
 class GroupedCheckboxSelectMultiple(CheckboxSelectMultiple):
     class Media:
-        js = ('js/autocolumn.js',
-              'js/groupbox.js')
+        js = ('%sjs/autocolumn.js' % settings.TAGGER_STATIC_URL,
+              '%sjs/groupbox.js' % settings.TAGGER_STATIC_URL)
 
     def render(self, name, value, attrs=None, choices=()):
         if value is None:
@@ -46,14 +54,6 @@ class GroupedCheckboxSelectMultiple(CheckboxSelectMultiple):
             id_ += '_0'
         return id_
     id_for_label = classmethod(id_for_label)
-
-
-import copy
-from django import forms
-from coop_tag import settings
-from django.core.urlresolvers import reverse
-from django.utils.translation import ugettext_lazy as _
-from coop_tag.utils import edit_string_for_tags
 
 
 class TagAutoSuggest(forms.TextInput):
@@ -111,7 +111,7 @@ class TagAutoSuggest(forms.TextInput):
                 'start_text': _("Enter Tag Here"),
                 'empty_text': _("No Results"),
                 'limit_text': _('No More Selections Are Allowed'),
-                'retrieve_limit': settings.MAX_SUGGESTIONS,
+                'retrieve_limit': settings.TAGGER_MAX_SUGGESTIONS,
             }
         return result_html + widget_html + mark_safe(js)
 

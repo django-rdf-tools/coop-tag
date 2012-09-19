@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block meta_title %}Tag : {{tag|title}}{% endblock %}
+
+
+
+{% block title %}<h3>Tag : {{tag}}</h3>{% endblock %}
+    <p>Ajouté le {{tag.created|date:'l t F Y'}} par {{tag.person}}</p>
+
+
+{% block document %}
+{% block article %}
+    {% for model, items in tag.tagged_items.items %}
+        <h4>{{ model|title }}</h4>
+            <ul>{% for item in items %}
+                <li class="tagged_{{model}}">
+                    <a href="{{item.get_absolute_url}}">{{ item }}</a>
+                </li>
+                {% endfor %}
+            </ul>
+    {% endfor %}
+{% endblock %}
+{% endblock %}

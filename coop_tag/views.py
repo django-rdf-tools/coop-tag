@@ -6,7 +6,7 @@ from django.views.generic.list_detail import object_list
 from django.template import RequestContext
 from django.shortcuts import render_to_response
 
-from coop_tag.settings import get_class, MAX_SUGGESTIONS
+from coop_tag.settings import get_class, TAGGER_MAX_SUGGESTIONS
 
 Tag = get_class('tag')
 TaggedItem = get_class('taggeditem')
@@ -30,11 +30,7 @@ def tagged_object_list(request, slug, queryset, **kwargs):
 def tag_detail(request, slug):
     context = {}
     tag = Tag.objects.get(slug=slug)
-    context['object'] = tag
-    #context['initiatives'] = Organization.objects.filter(tags=tag)
-    #BAD : should use taggeditems grouped by model
-    # this could be a method from the tag
-    return render_to_response('tag_detail.html', context, RequestContext(request))
+    return render_to_response('tag/tag_detail.html', { 'tag': tag }, RequestContext(request))
 
 
 from django.http import HttpResponse
@@ -47,12 +43,12 @@ def list_tags(request):
     all start like your query string `q` (not case sensitive).
     """
     query = request.GET.get('q', '')
-    limit = request.GET.get('limit', MAX_SUGGESTIONS)
+    limit = request.GET.get('limit', TAGGER_MAX_SUGGESTIONS)
     try:
-        request.GET.get('limit', MAX_SUGGESTIONS)
-        limit = min(int(limit), MAX_SUGGESTIONS)  # max or less
+        request.GET.get('limit', TAGGER_MAX_SUGGESTIONS)
+        limit = min(int(limit), TAGGER_MAX_SUGGESTIONS)  # max or less
     except ValueError:
-        limit = MAX_SUGGESTIONS
+        limit = TAGGER_MAX_SUGGESTIONS
 
     tag_name_qs = Tag.objects.filter(name__istartswith=query).\
         values_list('name', flat=True)
