@@ -8,7 +8,7 @@ We integrated in this package two other add-ons for taggit :
 
 So we have a nice styled autocomplete widget and some templatetags to use taggit.
 Tag slugs are unicode-friendly. That means accented letters are valid URI characters (like they should be !)
-So you can have differents slugs for differents tags : "élèves" / "élevés".
+So you can have differents slugs for differents tags.
 
 Installation and dependencies::
     $ pip install git+git://github.com/quinode/django-templatetag-sugar.git
