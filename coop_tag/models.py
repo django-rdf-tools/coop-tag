@@ -82,7 +82,7 @@ class TagBase(models.Model):
             if not selection or cls in selection:
                 if not cls in items:
                     items[cls] = []
-                items[cls].append(item)
+                items[cls].append(item.content_object)
         return items
 
 
@@ -93,10 +93,11 @@ if not hasattr(settings, 'TAGGER_TAG_MODEL'):
 
 class ItemBase(models.Model):
     def __unicode__(self):
-        return ugettext("%(object)s tagged with %(tag)s") % {
-            "object": self.content_object,
-            "tag": self.tag
-        }
+        return unicode(self.content_object)
+        # return ugettext("%(object)s tagged with %(tag)s") % {
+        #     "object": self.content_object,
+        #     "tag": self.tag
+        # }
 
     class Meta:
         abstract = True

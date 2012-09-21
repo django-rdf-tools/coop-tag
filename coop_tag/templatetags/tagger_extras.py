@@ -51,7 +51,6 @@ def get_queryset(forvar=None):
                     through_opts.object_name)).lower()  # old style
 
     if count_field is None:
-        # if
         relname = TaggedItem._meta.get_field_by_name('tag')[0].rel.related_name
         return queryset.annotate(num_times=Count(relname))
     else:
@@ -82,7 +81,6 @@ def get_taglist(context, asvar, for_obj=None, count=None):
         context[asvar] = queryset[:int(count)]
     else:
         context[asvar] = queryset
-
     return ''
 
 
