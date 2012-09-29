@@ -70,12 +70,12 @@ def get_weight_fun(t_min, t_max, f_min, f_max):
     return weight_fun
 
 
-@tag(register, {Required('asvar'): Variable(), Optional('for_obj'): Variable(), Optional('count'): Variable()})
-def get_taglist(context, asvar, for_obj=None, count=None):
+@tag(register, {Required('asvar'): Variable(), Optional('forvar'): Variable(), Optional('count'): Variable()})
+def get_taglist(context, asvar, forvar=None, count=None):
     # print asvar
     # print for_obj
     # print count
-    queryset = get_queryset(for_obj)
+    queryset = get_queryset(forvar)
     queryset = queryset.order_by('-num_times')
     if count:
         context[asvar] = queryset[:int(count)]
@@ -84,18 +84,21 @@ def get_taglist(context, asvar, for_obj=None, count=None):
     return ''
 
 
-@tag(register, {Optional('as'): Variable(), Optional('for'): Variable(), Optional('count'): Variable()})
+@tag(register, {Optional('asvar'): Variable(), Optional('forvar'): Variable(), Optional('count'): Variable()})
 def get_tagcloud(context, asvar=None, forvar=None, count=None):
+
+
     queryset = get_queryset(forvar)
+    relname = TaggedItem._meta.get_field_by_name('tag')[0].rel.related_name
+    queryset = queryset.annotate(num_times=Count(relname)).order_by('-num_times', 'name')
+
     num_times = queryset.values_list('num_times', flat=True)
     if(len(num_times) == 0):
         context[asvar] = queryset
         return ''
     weight_fun = get_weight_fun(TAGGER_CLOUD_MIN, TAGGER_CLOUD_MAX, min(num_times), max(num_times))
     if count:
-        queryset = queryset.order_by('name')[:int(count) - 1]
-    else:
-        queryset = queryset.order_by('name')
+        queryset = queryset[:int(count) - 1]
     for tag in queryset:
         tag.weight = weight_fun(tag.num_times)
     context[asvar] = queryset

@@ -88,20 +88,20 @@ To limit the number of tags::
 
 For the tags of an app, just do::
 
-    {% get_taglist asvar tags for_obj 'yourapp' %}
+    {% get_taglist asvar tags forvar 'yourapp' %}
 
 For the tags of a model, just do::
 
-    {% get_taglist asvar tags for_obj 'yourapp.yourmodel' %}
+    {% get_taglist asvar tags forvar 'yourapp.yourmodel' %}
 
 You can also customize the name of the tags manager in your model (the default is *tags*)::
 
-    {% get_taglist asvar tags for_obj 'yourapp.yourmodel:yourtags' %}
+    {% get_taglist asvar tags forvar 'yourapp.yourmodel:yourtags' %}
 
 No matter what you do, you have a list of tags in the ``tags`` template variable. You can now iterate over it::
 
     <ul id="tags" class="indextags">
-        {% get_taglist asvar all_tags for_obj target_app count 15 %}
+        {% get_taglist asvar all_tags forvar target_app count 15 %}
         {% for tag in all_tags %}
         <li class="tag">
             <a href="{{ tag.get_absolute_url }}">{{tag}} ({{tag.num_times}})</a>
@@ -124,15 +124,15 @@ Tagclouds
 
 A very popular way to navigate through tags is a tagcloud_.  This app provides some tags for that::
 
-    {% get_tagcloud as tags %}
+    {% get_tagcloud asvar tags %}
 
 or::
 
-    {% get_tagcloud as tags for 'yourapp' %}
+    {% get_tagcloud asvar tags forvar 'yourapp' %}
 
 or::
 
-    {% get_tagcloud as tags for 'yourapp.yourmodel' %}
+    {% get_tagcloud asvar tags forvar 'yourapp.yourmodel' %}
 
 respectivly. The resulting list of tags is ordered by their ``name`` attribute. Besides the ``num_items`` attribute, there's a ``weight`` attribute. Its maximum and minimum may be specified as the settings_ section reads.
 
