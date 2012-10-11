@@ -5,7 +5,7 @@ from django.utils.importlib import import_module
 TAGGER_CLOUD_MIN = getattr(settings, 'TAGGER_CLOUD_MIN', 1.0)
 
 # define the maximum weight of a tag in the tagcloud
-TAGGER_CLOUD_MAX = getattr(settings, 'TAGGER_CLOUD_MAX', 6.0)
+TAGGER_CLOUD_MAX = getattr(settings, 'TAGGER_CLOUD_MAX', 10.0)
 
 # default ForeignKey for TaggedItem : must be defined in YOUR settings if you have a custom Tag model
 TAGGER_FKEY_NAME = getattr(settings, 'TAGGER_FKEY_NAME', 'coop_tag.Tag')

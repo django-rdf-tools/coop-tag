@@ -74,15 +74,15 @@ class TagBase(models.Model):
         Returns a dict of objects tagged with this tag, keys of the dict are model names.
         The 'selection' parameter can be used to pass a restrictive list of models names as strings.
         """
-        from coop_tag.settings import get_class
         TaggedItem = get_class('taggeditem')
         items = {}
         for item in TaggedItem.objects.filter(tag=self):
-            cls = item.content_object._meta.verbose_name_plural
-            if not selection or cls in selection:
-                if not cls in items:
-                    items[cls] = []
-                items[cls].append(item.content_object)
+            if item.content_object:
+                cls = item.content_object._meta.verbose_name_plural
+                if not selection or cls in selection:
+                    if not cls in items:
+                        items[cls] = []
+                    items[cls].append(item.content_object)
         return items
 
 
