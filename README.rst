@@ -86,17 +86,17 @@ To limit the number of tags::
 
     {% get_taglist asvar tags count 25 %}
 
-For the tags of an app, just do::
+For the tags of an app, just just mention it **without quotes** using the ``forvar`` keyword::
 
-    {% get_taglist asvar tags forvar 'yourapp' %}
+    {% get_taglist asvar tags forvar yourapp %}
 
-For the tags of a model, just do::
+For the tags of a model, same applies::
 
-    {% get_taglist asvar tags forvar 'yourapp.yourmodel' %}
+    {% get_taglist asvar tags forvar yourapp.yourmodel %}
 
-You can also customize the name of the tags manager in your model (the default is *tags*)::
+You can also pass the name of the tags manager in your model (if you did not named it ``tags``)::
 
-    {% get_taglist asvar tags forvar 'yourapp.yourmodel:yourtags' %}
+    {% get_taglist asvar tags forvar yourapp.yourmodel:yourtags %}
 
 No matter what you do, you have a list of tags in the ``tags`` template variable. You can now iterate over it::
 
