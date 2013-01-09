@@ -12,6 +12,7 @@ from django.conf import settings
 from django.db import router
 import re
 
+import slugify
 
 try:
     from south.modelsinspector import add_ignored_fields
@@ -38,8 +39,8 @@ class TagBase(models.Model):
         # ordering = ['tree_id', 'lft']  # for FeinCMS TreeEditor
 
     def save(self, *args, **kwargs):
-        if (not self.pk and not self.slug) or not self.slug:
-            self.slug = self.uslugify(self.name)
+        if (not self.pk and not self.slug) or not self.slug or (self.slug != self.uslugify()):
+            self.slug = self.uslugify()
             using = kwargs.get("using") or router.db_for_write(
                 type(self), instance=self)
             # Make sure we write to the same db for all attempted writes,
@@ -57,14 +58,17 @@ class TagBase(models.Model):
                     return res
                 except IntegrityError:
                     transaction.savepoint_rollback(sid, **trans_kwargs)
-                    self.slug = self.uslugify(self.name, i)
+                    self.slug = self.uslugify(i)
         else:
             super(TagBase, self).save(*args, **kwargs)
 
-    def uslugify(self, tag_name, i=None):
+    def uslugify(self, i=None):
         #import pdb; pdb.set_trace()
-        tag_name = unicode(re.sub('[^\w\s-]', '', tag_name).strip().lower())
-        slug = mark_safe(re.sub('[-\s]+', '-', tag_name))
+
+        #tag_name = unicode(re.sub('[^\w\s-]', '', tag_name).strip().lower())
+        #slug = mark_safe(re.sub('[-\s]+', '-', tag_name))
+
+        slug = slugify.slugify(self.name)
         if i is not None:
             slug += "_%d" % i
         return slug

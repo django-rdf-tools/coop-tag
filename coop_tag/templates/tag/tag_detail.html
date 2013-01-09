@@ -1,11 +1,8 @@
 {% extends "base.html" %}
 {% block meta_title %}Tag : {{tag|title}}{% endblock %}
 
-
-
 {% block title %}<h3>Tag : {{tag}}</h3>{% endblock %}
     <p>Ajouté le {{tag.created|date:'l t F Y'}} par {{tag.person}}</p>
-
 
 {% block document %}
 {% block article %}
