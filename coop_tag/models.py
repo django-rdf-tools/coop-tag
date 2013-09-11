@@ -11,6 +11,7 @@ from coop_tag.settings import get_class, TAGGER_FKEY_NAME
 from django.conf import settings
 from django.db import router
 import re
+from coop.models import URIModel
 
 import slugify
 
