@@ -2,7 +2,7 @@
 
 from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404
-from django.views.generic.list_detail import object_list
+# from django.views.generic.list_detail import object_list
 from django.template import RequestContext
 from django.shortcuts import render_to_response
 
@@ -12,19 +12,19 @@ Tag = get_class('tag')
 TaggedItem = get_class('taggeditem')
 
 
-def tagged_object_list(request, slug, queryset, **kwargs):
-    if callable(queryset):
-        queryset = queryset()
-    tag = get_object_or_404(Tag, slug=slug)
-    qs = queryset.filter(pk__in=TaggedItem.objects.filter(
-        tag=tag, content_type=ContentType.objects.get_for_model(queryset.model)
-    ).values_list("object_id", flat=True))
-    if "extra_context" not in kwargs:
-        kwargs["extra_context"] = {}
-    kwargs["extra_context"]["tag"] = tag
-    return object_list(request, qs, **kwargs)
+# def tagged_object_list(request, slug, queryset, **kwargs):
+#     if callable(queryset):
+#         queryset = queryset()
+#     tag = get_object_or_404(Tag, slug=slug)
+#     qs = queryset.filter(pk__in=TaggedItem.objects.filter(
+#         tag=tag, content_type=ContentType.objects.get_for_model(queryset.model)
+#     ).values_list("object_id", flat=True))
+#     if "extra_context" not in kwargs:
+#         kwargs["extra_context"] = {}
+#     kwargs["extra_context"]["tag"] = tag
+#     return object_list(request, qs, **kwargs)
 
-    # PB : n'est bon que si on passe le queryset d'un modèle spécifique
+#     # PB : n'est bon que si on passe le queryset d'un modèle spécifique
 
 
 def tag_detail(request, slug):
