@@ -129,7 +129,7 @@ class ItemBase(models.Model):
 
 
 class TaggedItemBase(ItemBase):
-    tag = models.ForeignKey(TAGGER_FKEY_NAME, related_name="%(app_label)s_%(class)s_items")
+    tag = models.ForeignKey(TAGGER_FKEY_NAME, related_name="%(app_label)s_%(class)s_items", on_delete=models.PROTECT)
 
     class Meta:
         abstract = True
