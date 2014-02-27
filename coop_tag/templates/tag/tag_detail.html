@@ -7,6 +7,7 @@
 {% block document %}
 {% block article %}
     {% for model, items in tag.tagged_items.items %}
+        {% if model != 'person' %}
         <h4>{{ model|title }}</h4>
             <ul>{% for item in items %}
                 <li class="tagged_{{model}}">
@@ -14,6 +15,7 @@
                 </li>
                 {% endfor %}
             </ul>
+        {% endif %}
     {% endfor %}
 {% endblock %}
 {% endblock %}
