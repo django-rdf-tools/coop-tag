@@ -7,7 +7,7 @@
 {% block document %}
 {% block article %}
     {% for model, items in tag.tagged_items.items %}
-        {% if model.__unicode__ != 'Persons' %}
+        {% if model != 'Personnes' and model != 'Persons' %}
         <h4>{{ model|title }}</h4>
             <ul>{% for item in items %}
                 <li class="tagged_{{model}}">
