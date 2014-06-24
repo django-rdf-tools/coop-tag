@@ -83,7 +83,7 @@ class TagBase(models.Model):
         items = {}
         for item in TaggedItem.objects.filter(tag=self):
             if item.content_object:
-                cls = item.content_object._meta.verbose_name_plural
+                cls = unicode(item.content_object._meta.verbose_name_plural)
                 if not selection or cls in selection:
                     if not cls in items:
                         items[cls] = []
